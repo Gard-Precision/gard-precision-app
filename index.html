@@ -5,47 +5,7 @@
     <title>Gard Precision | OS v45.1 | Full-Spectrum Production</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
-        /* 
-           V45.1 ULTRA-DENSITY STYLING 
-           Industrial-Grade CSS Architecture: Neon Glassmorphism & High-Contrast Readability
-        */
-        :root { 
-            --p: #000b1e; --o: #f97316; --b: #0084ff; --g: #00f2ff; 
-            --t: #ffffff; --r: #ff3b3b; --bg: #000814; 
-            --glass: rgba(0, 26, 61, 0.92);
-            --neon: 0 0 25px rgba(0, 242, 255, 0.5);
-            --panel-border: 1px solid rgba(0, 242, 255, 0.25);
-            --accent-gradient: linear-gradient(135deg, var(--b), var(--g));
-        }
-
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; transition: all 0.25s cubic-bezier(0.15, 0.85, 0.15, 1); }
-        
-        body { 
-            background: var(--bg); 
-            background-image: 
-                radial-gradient(circle at 5It is great to see the Gard Precision OS evolving so quickly to manage your operations! 
-
-Before we deploy this upgrade, I need to be completely transparent with you regarding your request for **1TB of storage**: Web browsers physically cannot store 1 Terabyte of data locally on your device. Browsers cap local website storage (like the `localStorage` we've been using) at around **5MB** to prevent malicious websites from filling up your hard drive. 
-
-To solve this and give you massive storage capacity without needing to pay for a cloud server, I have engineered an **IndexedDB Data Vault** directly into your code. This is an advanced browser database that bypasses the 5MB limit, allowing you to store thousands of high-resolution shop photos directly on your hard drive (up to your specific browser's maximum gigabyte allocation limit).
-
-Here is what is included in your new **v45.1** architecture:
-*   **CEO GARD Upgrade:** The Admin tab has been transformed into the CEO dashboard. You can now hire crew members, assign their PINs, and update their credentials here.
-*   **Crew Portals & Processes:** The Crew tab is now a login portal for your employees. When they log in, they will only see the specific jobs (processes) you assigned to them in the CEO tab, complete with sliders to update their progress live.
-*   **IndexedDB Photo Vault:** The Shop injection system now routes heavy image files into the new Data Vault, preventing your system from crashing when you upload inventory.
-
-Replace your entire file with this fully integrated code. I did not delete any of your previous functionality.
-
-```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Gard Precision | OS v45.1 | Full-Spectrum Production</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <style>
-        /* 
-           V45.1 ULTRA-DENSITY STYLING 
+        /* V45.1 ULTRA-DENSITY STYLING 
            Industrial-Grade CSS Architecture: Neon Glassmorphism & High-Contrast Readability
         */
         :root { 
@@ -222,12 +182,11 @@ Replace your entire file with this fully integrated code. I did not delete any o
     <main id="app-root" class="app-canvas"></main>
 
     <script>
-        /* 
-           V45.1 KERNEL LOGIC 
+        /* V45.1 KERNEL LOGIC 
            Includes IndexedDB Photo Vault, Employee Routing, and CEO Permissions
         */
-        const BASE_PAY_URL = "[https://square.link/u/m66E40D7](https://square.link/u/m66E40D7)";
-        const DUE_PAY_URL = "[https://square.link/u/AqVdW7ZW](https://square.link/u/AqVdW7ZW)";
+        const BASE_PAY_URL = "https://square.link/u/m66E40D7";
+        const DUE_PAY_URL = "https://square.link/u/AqVdW7ZW";
 
         // --- INDEXED DB STORAGE VAULT (Bypasses 5MB limit for Photos) ---
         let db;
@@ -656,7 +615,6 @@ Replace your entire file with this fully integrated code. I did not delete any o
                     <p style="text-align:right; font-size:10px; opacity:0.5; letter-spacing:2px;">QUOTA: $10,000.00</p>
                 </div>
 
-                <!-- CREW MANAGEMENT -->
                 <div class="module" style="border-color:var(--o);">
                     <span class="label" style="color:var(--o);">Crew Management</span>
                     <input type="text" id="ne-n" placeholder="OPERATIVE NAME">
@@ -670,7 +628,6 @@ Replace your entire file with this fully integrated code. I did not delete any o
                     </div>
                 </div>
 
-                <!-- CLIENT JOB MANAGEMENT WITH CREW ASSIGNMENT -->
                 <div class="module">
                     <span class="label">Production Progress Controller</span>
                     <select id="job-client-sel" style="background:#0f172a;">${clientOptions || '<option>NO CLIENTS DETECTED</option>'}</select>
@@ -682,7 +639,6 @@ Replace your entire file with this fully integrated code. I did not delete any o
                     <div id="admin-job-list" style="margin-top:20px;"></div>
                 </div>
 
-                <!-- SHOP MANAGEMENT -->
                 <div class="module" style="border-color:var(--g);">
                     <span class="label">Shop Data Vault Injection</span>
                     <p style="font-size:10px; color:var(--b); margin-bottom:10px;">NOTE: High-res images are now routed directly to the IndexedDB Data Vault to bypass standard limits.</p>
@@ -693,7 +649,6 @@ Replace your entire file with this fully integrated code. I did not delete any o
                     <button class="btn btn-primary" onclick="injectShop()">PUSH TO PUBLIC GRID</button>
                 </div>
 
-                <!-- ADMIN COMMS -->
                 <div class="module">
                     <span class="label" style="color:var(--o); border-color:var(--o);">Command Comms</span>
                     <select id="msg-client-sel" style="background:#0f172a;" onchange="loadAdminChat()">${clientOptions || '<option>NO CLIENTS</option>'}</select>
