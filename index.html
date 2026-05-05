@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gard Precision | Infrastructure_OS v44.7</title>
+    <style>
+        :root { 
+            --accent: #2d5a27; 
+            --bg: #1a1a1a; 
+            --text: #e0e0e0; 
+            --panel: #222;
+        }
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            font-family: 'Courier New', monospace; 
+            margin: 0; 
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        nav { 
+            background: #000; 
+            padding: 15px; 
+            display: flex; 
+            gap: 10px; 
+            border-bottom: 2px solid var(--accent);
+            justify-content: center;
+        }
+        button { 
+            background: transparent; 
+            border: 1px solid var(--accent); 
+            color: var(--accent); 
+            padding: 10px 20px; 
+            cursor: pointer; 
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        button.active { 
+            background: var(--accent); 
+            color: white; 
+        }
+        .tab-content { 
+            padding: 20px; 
+            display: none; 
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+        .tab-content.active { display: block; }
+        .card { 
+            border: 1px solid #333; 
+            padding: 20px; 
+            margin-bottom: 20px; 
+            background: var(--panel); 
+            border-radius: 4px;
+        }
+        input, textarea { 
+            width: 100%; 
+            padding: 12px; 
+            margin: 10px 0; 
+            background: #000; 
+            border: 1px solid #444; 
+            color: #fff; 
+            box-sizing: border-box;
+        }
+        .request-item { 
+            border-left: 4px solid var(--accent); 
+            padding: 15px; 
+            background: #111;
+            margin-bottom: 15px; 
+        }
+        .price-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .price-table td, .price-table th { border: 1px solid #444; padding: 8px; text-align: left; }
+        h2 { color: var(--accent); text-transform: uppercase; letter-spacing: 2px; }
+    </style>
+</head>
+<body>
+
+<nav>
+    <button id="btn-client" class="active" onclick="showTab('client')">CLIENT PORTAL</button>
+    <button id="btn-admin" onclick="showTab('admin')">ADMIN CONTROL</button>
+</nav>
+
+<!-- CLIENT TAB -->
+<div id="client" class="tab-content active">
+    <h2>[ CLIENT REQUEST GATE ]</h2>
+    <div class="card">
+        <p>Submit production parameters for Argon-6 Calibration.</p>
+        <input type="text" id="clientName" placeholder="Business Name (e.g. The Leafy Lounge)">
+        <textarea id="requestDetails" rows="4" placeholder="Order Specifications (e.g. 12 Raw Pine Squares with logo)"></textarea>
+        <button onclick="submitRequest()" style="width: 100%; margin-top: 10px;">TRANSMIT REQUEST</button>
+    </div>
+
+    <div class="card">
+        <h3>Wholesale Price Tiers</h3>
+        <table class="price-table">
+            <tr><th>Tier</th><th>Qty</th><th>Unit</th></tr>
+            <tr><td>Standard</td><td>12</td><td>$3.91</td></tr>
+            <tr><td>Bulk</td><td>24</td><td>$3.54</td></tr>
+            <tr><td>Enterprise</td><td>48</td><td>$3.33</td></tr>
+        </table>
+    </div>
+</div>
+
+<!-- ADMIN TAB -->
+<div id="admin" class="tab-content">
+    <h2>[ SYSTEM OVERSEER ]</h2>
+    <div class="card">
+        <h3>Incoming Transmission Logs</h3>
+        <div id="adminLogs">Scanning for active transmissions...</div>
+        <button onclick="clearLogs()" style="color: #ff4444; border-color: #ff4444; margin-top: 30px;">PURGE ALL LOGS</button>
+    </div>
+</div>
+
+<script>
+    // Tab Switching Logic
+    function showTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+        
+        document.getElementById(tabId).classList.add('active');
+        document.getElementById('btn-' + tabId).classList.add('active');
+        
+        if(tabId === 'admin') loadRequests();
+    }
+
+    // Client Submission Logic[cite: 1]
+    function submitRequest() {
+        const name = document.getElementById('clientName').value;
+        const details = document.getElementById('requestDetails').value;
+        
+        if(!name || !details) {
+            alert("Protocol Error: All fields required for transmission.");
+            return;
+        }
+
+        const requests = JSON.parse(localStorage.getItem('gp_requests') || '[]');
+        requests.push({ 
+            name, 
+            details, 
+            time: new Date().toLocaleString() 
+        });
+        
+        localStorage.setItem('gp_requests', JSON.stringify(requests));
+
+        alert("Transmission Successful. Argon-6 Calibration Pending.");
+        document.getElementById('clientName').value = '';
+        document.getElementById('requestDetails').value = '';
+    }
+
+    // Admin Log Retrieval Logic[cite: 1]
+    function loadRequests() {
+        const logs = document.getElementById('adminLogs');
+        const data = JSON.parse(localStorage.getItem('gp_requests') || '[]');
+        
+        if(data.length === 0) {
+            logs.innerHTML = "No active requests in current hardware memory.";
+            return;
+        }
+        
+        logs.innerHTML = data.map(req => `
+            <div class="request-item">
+                <div style="color: var(--accent); font-size: 0.8em;">TIMESTAMP: ${req.time}</div>
+                <strong>FROM:</strong> ${req.name}<br>
+                <strong>SPEC:</strong> ${req.details}
+            </div>
+        `).reverse().join('');
+    }
+
+    // Data Management[cite: 1]
+    function clearLogs() {
+        if(confirm("Confirm Protocol: Permanently purge all transmission history?")) {
+            localStorage.removeItem('gp_requests');
+            loadRequests();
+        }
+    }
+</script>
+
+</body>
+</html>
