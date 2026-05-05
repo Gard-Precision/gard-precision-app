@@ -3,75 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gard Precision | Infrastructure_OS v44.7</title>
+    <title>Gard Precision | Infrastructure_OS v44.7.2</title>
     <style>
-        :root { 
-            --accent: #2d5a27; 
-            --bg: #1a1a1a; 
-            --text: #e0e0e0; 
-            --panel: #222;
-        }
-        body { 
-            background: var(--bg); 
-            color: var(--text); 
-            font-family: 'Courier New', monospace; 
-            margin: 0; 
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
-        nav { 
-            background: #000; 
-            padding: 15px; 
-            display: flex; 
-            gap: 10px; 
-            border-bottom: 2px solid var(--accent);
-            justify-content: center;
-        }
-        button { 
-            background: transparent; 
-            border: 1px solid var(--accent); 
-            color: var(--accent); 
-            padding: 10px 20px; 
-            cursor: pointer; 
-            font-weight: bold;
-            transition: 0.3s;
-        }
-        button.active { 
-            background: var(--accent); 
-            color: white; 
-        }
-        .tab-content { 
-            padding: 20px; 
-            display: none; 
-            flex-grow: 1;
-            overflow-y: auto;
-        }
+        :root { --accent: #2d5a27; --bg: #1a1a1a; --text: #e0e0e0; --panel: #222; }
+        body { background: var(--bg); color: var(--text); font-family: 'Courier New', monospace; margin: 0; display: flex; flex-direction: column; height: 100vh; }
+        nav { background: #000; padding: 15px; display: flex; gap: 10px; border-bottom: 2px solid var(--accent); justify-content: center; }
+        button { background: transparent; border: 1px solid var(--accent); color: var(--accent); padding: 10px 20px; cursor: pointer; font-weight: bold; }
+        button.active { background: var(--accent); color: white; }
+        .tab-content { padding: 20px; display: none; flex-grow: 1; overflow-y: auto; }
         .tab-content.active { display: block; }
-        .card { 
-            border: 1px solid #333; 
-            padding: 20px; 
-            margin-bottom: 20px; 
-            background: var(--panel); 
-            border-radius: 4px;
-        }
-        input, textarea { 
-            width: 100%; 
-            padding: 12px; 
-            margin: 10px 0; 
-            background: #000; 
-            border: 1px solid #444; 
-            color: #fff; 
-            box-sizing: border-box;
-        }
-        .request-item { 
-            border-left: 4px solid var(--accent); 
-            padding: 15px; 
-            background: #111;
-            margin-bottom: 15px; 
-        }
-        .price-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        .price-table td, .price-table th { border: 1px solid #444; padding: 8px; text-align: left; }
+        .card { border: 1px solid #333; padding: 20px; margin-bottom: 20px; background: var(--panel); border-radius: 4px; }
+        input, textarea { width: 100%; padding: 12px; margin: 10px 0; background: #000; border: 1px solid #444; color: #fff; box-sizing: border-box; }
+        .request-item { border-left: 4px solid var(--accent); padding: 15px; background: #111; margin-bottom: 15px; }
+        .hidden { display: none; }
         h2 { color: var(--accent); text-transform: uppercase; letter-spacing: 2px; }
     </style>
 </head>
@@ -86,96 +30,94 @@
 <div id="client" class="tab-content active">
     <h2>[ CLIENT REQUEST GATE ]</h2>
     <div class="card">
-        <p>Submit production parameters for Argon-6 Calibration.</p>
-        <input type="text" id="clientName" placeholder="Business Name (e.g. The Leafy Lounge)">
-        <textarea id="requestDetails" rows="4" placeholder="Order Specifications (e.g. 12 Raw Pine Squares with logo)"></textarea>
-        <button onclick="submitRequest()" style="width: 100%; margin-top: 10px;">TRANSMIT REQUEST</button>
-    </div>
-
-    <div class="card">
-        <h3>Wholesale Price Tiers</h3>
-        <table class="price-table">
-            <tr><th>Tier</th><th>Qty</th><th>Unit</th></tr>
-            <tr><td>Standard</td><td>12</td><td>$3.91</td></tr>
-            <tr><td>Bulk</td><td>24</td><td>$3.54</td></tr>
-            <tr><td>Enterprise</td><td>48</td><td>$3.33</td></tr>
-        </table>
+        <p>Submit specifications for Argon-6 Calibration.</p>
+        <input type="text" id="clientName" placeholder="Business Name">
+        <textarea id="requestDetails" rows="4" placeholder="Order Details"></textarea>
+        <button onclick="submitRequest()" style="width: 100%;">TRANSMIT REQUEST</button>
     </div>
 </div>
 
 <!-- ADMIN TAB -->
 <div id="admin" class="tab-content">
     <h2>[ SYSTEM OVERSEER ]</h2>
-    <div class="card">
-        <h3>Incoming Transmission Logs</h3>
-        <div id="adminLogs">Scanning for active transmissions...</div>
-        <button onclick="clearLogs()" style="color: #ff4444; border-color: #ff4444; margin-top: 30px;">PURGE ALL LOGS</button>
+    
+    <!-- PASSWORD LOCK GATE -->
+    <div id="lockGate" class="card">
+        <h3>AUTHENTICATION REQUIRED</h3>
+        <input type="password" id="adminPass" placeholder="Enter System Password">
+        <button onclick="verifyAccess()" style="width: 100%;">UNLOCK ADMIN PANEL</button>
+    </div>
+
+    <!-- PROTECTED ADMIN CONTENT -->
+    <div id="adminContent" class="hidden">
+        <div class="card">
+            <h3>Incoming Transmission Logs</h3>
+            <div id="adminLogs">Scanning memory...</div>
+            <button onclick="clearLogs()" style="color: #ff4444; border-color: #ff4444; margin-top: 30px;">PURGE LOGS</button>
+            <button onclick="lockSystem()" style="margin-top: 10px;">RELOCK SYSTEM</button>
+        </div>
     </div>
 </div>
 
 <script>
-    // Tab Switching Logic
+    const SYSTEM_PASS = "1234"; // CHANGE THIS TO YOUR PREFERRED PASSWORD
+
     function showTab(tabId) {
         document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-        
         document.getElementById(tabId).classList.add('active');
         document.getElementById('btn-' + tabId).classList.add('active');
         
-        if(tabId === 'admin') loadRequests();
+        // Always relock when leaving the tab for security
+        if(tabId !== 'admin') lockSystem();
     }
 
-    // Client Submission Logic[cite: 1]
+    function verifyAccess() {
+        const input = document.getElementById('adminPass').value;
+        if(input === SYSTEM_PASS) {
+            document.getElementById('lockGate').classList.add('hidden');
+            document.getElementById('adminContent').classList.remove('hidden');
+            loadRequests();
+        } else {
+            alert("ACCESS DENIED: INVALID CREDENTIALS");
+        }
+    }
+
+    function lockSystem() {
+        document.getElementById('lockGate').classList.remove('hidden');
+        document.getElementById('adminContent').classList.add('hidden');
+        document.getElementById('adminPass').value = '';
+    }
+
     function submitRequest() {
         const name = document.getElementById('clientName').value;
         const details = document.getElementById('requestDetails').value;
-        
-        if(!name || !details) {
-            alert("Protocol Error: All fields required for transmission.");
-            return;
-        }
+        if(!name || !details) return alert("Error: Fields required.");
 
         const requests = JSON.parse(localStorage.getItem('gp_requests') || '[]');
-        requests.push({ 
-            name, 
-            details, 
-            time: new Date().toLocaleString() 
-        });
-        
+        requests.push({ name, details, time: new Date().toLocaleString() });
         localStorage.setItem('gp_requests', JSON.stringify(requests));
-
-        alert("Transmission Successful. Argon-6 Calibration Pending.");
+        alert("Transmission Successful.");
         document.getElementById('clientName').value = '';
         document.getElementById('requestDetails').value = '';
     }
 
-    // Admin Log Retrieval Logic[cite: 1]
     function loadRequests() {
         const logs = document.getElementById('adminLogs');
         const data = JSON.parse(localStorage.getItem('gp_requests') || '[]');
-        
-        if(data.length === 0) {
-            logs.innerHTML = "No active requests in current hardware memory.";
-            return;
-        }
-        
+        if(data.length === 0) { logs.innerHTML = "No active requests."; return; }
         logs.innerHTML = data.map(req => `
             <div class="request-item">
-                <div style="color: var(--accent); font-size: 0.8em;">TIMESTAMP: ${req.time}</div>
+                <small>${req.time}</small><br>
                 <strong>FROM:</strong> ${req.name}<br>
                 <strong>SPEC:</strong> ${req.details}
             </div>
         `).reverse().join('');
     }
 
-    // Data Management[cite: 1]
     function clearLogs() {
-        if(confirm("Confirm Protocol: Permanently purge all transmission history?")) {
-            localStorage.removeItem('gp_requests');
-            loadRequests();
-        }
+        if(confirm("Purge all data?")) { localStorage.removeItem('gp_requests'); loadRequests(); }
     }
 </script>
-
 </body>
 </html>
