@@ -2,12 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Gard Precision | OS v45.3 | Full-Spectrum Production</title>
+    <title>Gard Precision | OS v45.2.3 | Full-Spectrum Production</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
-        /* V45.3 ULTRA-DENSITY STYLING 
-           Industrial-Grade CSS Architecture: Neon Glassmorphism & High-Contrast Readability
-        */
+        /* V45.2.3 ULTRA-DENSITY STYLING */
         :root { 
             --p: #000b1e; --o: #f97316; --b: #0084ff; --g: #00f2ff; 
             --t: #ffffff; --r: #ff3b3b; --bg: #000814; 
@@ -96,6 +94,9 @@
             outline: none; font-family: 'JetBrains Mono', 'Consolas', monospace;
         }
         input:focus { border-color: var(--g); background: rgba(0,0,0,0.95); box-shadow: var(--neon); }
+        .input-error { border-color: var(--r) !important; animation: shake 0.4s; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        
         input[type="range"] { padding: 0; height: 5px; background: #334155; border: none; -webkit-appearance: none; margin: 20px 0; }
         input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: var(--g); box-shadow: var(--neon); cursor: pointer; }
         input[type="file"] { padding: 10px; background: rgba(255,255,255,0.05); }
@@ -150,7 +151,7 @@
 <body onload="bootSystem()">
 
     <div class="top-bar">
-        <span>GARD PRECISION // INFRASTRUCTURE_OS v45.3</span>
+        <span>GARD PRECISION // INFRASTRUCTURE_OS v45.2.3</span>
         <span id="sys-clock">00:00:00 AM</span>
     </div>
 
@@ -171,8 +172,8 @@
     <main id="app-root" class="app-canvas"></main>
 
     <script>
-        /* V45.3 KERNEL LOGIC 
-           Includes Phase Matrix, Time & Attendance, IndexedDB Photo Vault
+        /* V45.2.3 KERNEL LOGIC 
+           Includes Robust Security Gate Fix, Custom Job Phases, Time & Attendance, IndexedDB Photo Vault
         */
         const BASE_PAY_URL = "https://square.link/u/m66E40D7";
         const DUE_PAY_URL = "https://square.link/u/AqVdW7ZW";
@@ -225,8 +226,8 @@
                 {n: "RF-Poly Shield", c: 340.00, stock: 8}
             ],
             session: { user: null, role: null, attempts: 0, log: [] },
-            phases: ["Not Started", "Started", "In Progress", "On Lunch", "Clocked Out", "Completed"], // Default custom phases
-            timeClock: [] // Accounting logs
+            phases: ["Not Started", "Started", "In Progress", "On Lunch", "Clocked Out", "Completed"],
+            timeClock: []
         };
 
         // Data Migration & Structural Patch
@@ -235,7 +236,7 @@
             if(!c.messages) c.messages = []; 
             c.jobs.forEach(j => { 
                 if(!j.assignedTo) j.assignedTo = "Unassigned"; 
-                if(j.phaseIdx === undefined) j.phaseIdx = 0; // Migrate old progress to phase index
+                if(j.phaseIdx === undefined) j.phaseIdx = 0; 
             });
         });
         if(!gpStore.shop) gpStore.shop = [];
@@ -251,7 +252,7 @@
 
         function bootSystem() {
             updateTime(); setInterval(updateTime, 1000);
-            logAction("KERNEL_INITIALIZED_V45.3_SUCCESS");
+            logAction("KERNEL_INITIALIZED_V45.2.3_SUCCESS");
             navigate('portal'); // System defaults to Client Portal on load
         }
 
@@ -307,7 +308,6 @@
                     ${gpStore.session.attempts >= 2 ? `<button class="btn btn-danger" style="margin-top:25px; font-size:11px;" onclick="sysUnlocked=true; navigate(targetSecureRoute)">KERNEL EMERGENCY BYPASS</button>` : ''}
                 </div>`;
             
-            // Allow pressing Enter to submit
             setTimeout(() => {
                 const input = document.getElementById('key-input');
                 if(input) input.onkeydown = (e) => { if(e.key === "Enter") validateKey(); };
@@ -315,12 +315,17 @@
         }
 
         function validateKey() {
-            // Trim added to prevent accidental spacebar lockouts
-            if(document.getElementById('key-input').value.trim() === "Argon6098") {
+            const inputField = document.getElementById('key-input');
+            // Forcefully strips leading/trailing spaces and ignores case (argon6098 vs Argon6098)
+            const enteredKey = inputField.value.trim().toLowerCase(); 
+            
+            if(enteredKey === "argon6098") {
                 gpStore.session.attempts = 0; sysUnlocked = true; logAction("CEO_ACCESS_GRANTED"); navigate(targetSecureRoute);
             } else {
-                gpStore.session.attempts++; logAction(`AUTH_FAILURE_ID_${gpStore.session.attempts}`); 
-                alert("ACCESS DENIED: INCORRECT KEY"); navigate('gate');
+                gpStore.session.attempts++; 
+                logAction(`AUTH_FAILURE_ID_${gpStore.session.attempts}`); 
+                inputField.classList.add('input-error');
+                setTimeout(() => inputField.classList.remove('input-error'), 400); // Visual shake feedback
             }
         }
 
@@ -365,7 +370,6 @@
                 const isPaid = client ? client.paid : false;
                 const activePaymentLink = isPaid ? BASE_PAY_URL : DUE_PAY_URL;
 
-                // Job Progress HTML (Phase System)
                 let jobsHtml = client.jobs.length === 0 ? '<p style="font-size:11px; opacity:0.5;">No active production runs.</p>' : '';
                 client.jobs.forEach(job => {
                     let phaseText = gpStore.phases[job.phaseIdx] || gpStore.phases[0];
@@ -379,7 +383,6 @@
                         </div>`;
                 });
 
-                // Chat HTML
                 let chatHtml = '';
                 client.messages.forEach(m => {
                     chatHtml += `<div class="msg ${m.sender}"><span style="font-weight:900; color:${m.sender==='admin'?'var(--g)':'var(--o)'}">${m.sender === 'admin' ? 'CEO' : 'YOU'}</span><br>${m.text}<span class="msg-time">${m.time}</span></div>`;
@@ -420,7 +423,6 @@
             }
         }
 
-        // --- CREW PORTAL ---
         function renderCrew(root) {
             if(gpStore.session.role !== 'crew') {
                 root.innerHTML = `
@@ -454,7 +456,6 @@
                     });
                 });
 
-                // Check active clock status
                 const isClockedIn = gpStore.timeClock.length > 0 && gpStore.timeClock[0].emp === emp.name && gpStore.timeClock[0].type === 'CLOCK_IN' && !gpStore.timeClock[0].pairId;
 
                 root.innerHTML = `
@@ -483,7 +484,6 @@
                 logAction(`TIMELOG: ${empName} CLOCKED IN`);
             } else {
                 gpStore.timeClock.unshift({emp: empName, type: 'CLOCK_OUT', time: time, pairId: 'linked'});
-                // Link to previous clock in
                 let lastIn = gpStore.timeClock.find(t => t.emp === empName && t.type === 'CLOCK_IN' && !t.pairId);
                 if(lastIn) lastIn.pairId = 'linked';
                 logAction(`TIMELOG: ${empName} CLOCKED OUT`);
@@ -520,7 +520,7 @@
                     <span class="label">Kernel Telemetry</span>
                     <div class="stat-grid">
                         <div class="stat-panel"><span class="label" style="font-size:8px;">Uptime</span><br>100%</div>
-                        <div class="stat-panel"><span class="label" style="font-size:8px;">Build</span><br>v45.3</div>
+                        <div class="stat-panel"><span class="label" style="font-size:8px;">Build</span><br>v45.2.3</div>
                     </div>
                 </div>`;
         }
@@ -761,8 +761,8 @@
                 const reader = new FileReader();
                 reader.onloadend = function() { 
                     const imgId = "img_" + Date.now();
-                    savePhotoToVault(imgId, reader.result); // Push base64 string directly into IndexedDB Vault
-                    gpStore.shop.push({name: n, desc: d, price: p, imgId: imgId}); // Save only ID in localStore to save space
+                    savePhotoToVault(imgId, reader.result); 
+                    gpStore.shop.push({name: n, desc: d, price: p, imgId: imgId}); 
                     logAction(`SHOP_ADD:${n}`); sync(); navigate('admin'); 
                 }
                 reader.readAsDataURL(file);
