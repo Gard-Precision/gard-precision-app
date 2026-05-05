@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Gard Precision | OS v45.2.2 | Full-Spectrum Production</title>
+    <title>Gard Precision | OS v45.3 | Full-Spectrum Production</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
-        /* V45.2.2 ULTRA-DENSITY STYLING 
+        /* V45.3 ULTRA-DENSITY STYLING 
            Industrial-Grade CSS Architecture: Neon Glassmorphism & High-Contrast Readability
         */
         :root { 
@@ -150,7 +150,7 @@
 <body onload="bootSystem()">
 
     <div class="top-bar">
-        <span>GARD PRECISION // INFRASTRUCTURE_OS v45.2.2</span>
+        <span>GARD PRECISION // INFRASTRUCTURE_OS v45.3</span>
         <span id="sys-clock">00:00:00 AM</span>
     </div>
 
@@ -165,14 +165,14 @@
         <button id="t-audit" class="nav-item" onclick="navigate('audit')">Audit</button>
         <button id="t-crew" class="nav-item" onclick="navigate('crew')">Crew</button>
         <button id="t-functionality" class="nav-item" onclick="navigate('functionality')">Systems</button>
-        <button id="t-admin" class="nav-item" onclick="navigate('admin')">CEO GARD</button>
+        <button id="t-admin" class="nav-item" onclick="navigate('gate')">CEO GARD</button>
     </nav>
 
     <main id="app-root" class="app-canvas"></main>
 
     <script>
-        /* V45.2.2 KERNEL LOGIC 
-           Includes IndexedDB Photo Vault, Employee Routing, CEO Permissions, and Authentication Fixes
+        /* V45.3 KERNEL LOGIC 
+           Includes Phase Matrix, Time & Attendance, IndexedDB Photo Vault
         */
         const BASE_PAY_URL = "https://square.link/u/m66E40D7";
         const DUE_PAY_URL = "https://square.link/u/AqVdW7ZW";
@@ -224,17 +224,24 @@
                 {n: "Titanium Rail G5", c: 185.00, stock: 12}, 
                 {n: "RF-Poly Shield", c: 340.00, stock: 8}
             ],
-            session: { user: null, role: null, attempts: 0, log: [] }
+            session: { user: null, role: null, attempts: 0, log: [] },
+            phases: ["Not Started", "Started", "In Progress", "On Lunch", "Clocked Out", "Completed"], // Default custom phases
+            timeClock: [] // Accounting logs
         };
 
         // Data Migration & Structural Patch
         gpStore.clients.forEach(c => { 
             if(!c.jobs) c.jobs = []; 
             if(!c.messages) c.messages = []; 
-            c.jobs.forEach(j => { if(!j.assignedTo) j.assignedTo = "Unassigned"; });
+            c.jobs.forEach(j => { 
+                if(!j.assignedTo) j.assignedTo = "Unassigned"; 
+                if(j.phaseIdx === undefined) j.phaseIdx = 0; // Migrate old progress to phase index
+            });
         });
         if(!gpStore.shop) gpStore.shop = [];
         if(!gpStore.employees) gpStore.employees = [];
+        if(!gpStore.phases) gpStore.phases = ["Not Started", "Started", "In Progress", "On Lunch", "Clocked Out", "Completed"];
+        if(!gpStore.timeClock) gpStore.timeClock = [];
         gpStore.employees.forEach(e => { if(!e.pin) e.pin = "0000"; });
 
         // Global States
@@ -244,7 +251,7 @@
 
         function bootSystem() {
             updateTime(); setInterval(updateTime, 1000);
-            logAction("KERNEL_INITIALIZED_V45.2.2_SUCCESS");
+            logAction("KERNEL_INITIALIZED_V45.3_SUCCESS");
             navigate('portal'); // System defaults to Client Portal on load
         }
 
@@ -358,17 +365,21 @@
                 const isPaid = client ? client.paid : false;
                 const activePaymentLink = isPaid ? BASE_PAY_URL : DUE_PAY_URL;
 
+                // Job Progress HTML (Phase System)
                 let jobsHtml = client.jobs.length === 0 ? '<p style="font-size:11px; opacity:0.5;">No active production runs.</p>' : '';
                 client.jobs.forEach(job => {
+                    let phaseText = gpStore.phases[job.phaseIdx] || gpStore.phases[0];
+                    let progressPercent = (job.phaseIdx / (gpStore.phases.length - 1)) * 100;
                     jobsHtml += `
                         <div style="margin-bottom: 15px;">
                             <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:900; color:var(--g);">
-                                <span>${job.name}</span><span>${job.progress}%</span>
+                                <span>${job.name}</span><span style="color:var(--o);">${phaseText}</span>
                             </div>
-                            <div class="progress-container"><div class="progress-fill" style="width:${job.progress}%"></div></div>
+                            <div class="progress-container"><div class="progress-fill" style="width:${progressPercent}%"></div></div>
                         </div>`;
                 });
 
+                // Chat HTML
                 let chatHtml = '';
                 client.messages.forEach(m => {
                     chatHtml += `<div class="msg ${m.sender}"><span style="font-weight:900; color:${m.sender==='admin'?'var(--g)':'var(--o)'}">${m.sender === 'admin' ? 'CEO' : 'YOU'}</span><br>${m.text}<span class="msg-time">${m.time}</span></div>`;
@@ -409,6 +420,7 @@
             }
         }
 
+        // --- CREW PORTAL ---
         function renderCrew(root) {
             if(gpStore.session.role !== 'crew') {
                 root.innerHTML = `
@@ -425,28 +437,59 @@
                 gpStore.clients.forEach((c, cIdx) => {
                     c.jobs.forEach((j, jIdx) => {
                         if(j.assignedTo === emp.name) {
+                            let phaseText = gpStore.phases[j.phaseIdx] || gpStore.phases[0];
                             assignedJobs += `
                                 <div class="module" style="border-color:var(--b); padding:20px;">
                                     <span class="label" style="color:var(--b);">Client: ${c.name}</span>
-                                    <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:900;">
-                                        <span>Task: ${j.name}</span><span id="crew-val-${cIdx}-${jIdx}">${j.progress}%</span>
+                                    <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:900; align-items:center;">
+                                        <span>Task: ${j.name}</span>
+                                        <div style="display:flex; align-items:center; gap:10px;">
+                                            <button class="btn btn-small btn-danger" style="margin:0;" onclick="shiftPhase(${cIdx}, ${jIdx}, -1)">◀</button>
+                                            <span style="color:var(--o); min-width:80px; text-align:center;">${phaseText}</span>
+                                            <button class="btn btn-small btn-accent" style="margin:0;" onclick="shiftPhase(${cIdx}, ${jIdx}, 1)">▶</button>
+                                        </div>
                                     </div>
-                                    <input type="range" min="0" max="100" value="${j.progress}" oninput="updateJobVal(${cIdx}, ${jIdx}, this.value)" onchange="saveJobVal(${cIdx}, ${jIdx}, this.value)">
                                 </div>`;
                         }
                     });
                 });
 
+                // Check active clock status
+                const isClockedIn = gpStore.timeClock.length > 0 && gpStore.timeClock[0].emp === emp.name && gpStore.timeClock[0].type === 'CLOCK_IN' && !gpStore.timeClock[0].pairId;
+
                 root.innerHTML = `
                     <div class="module">
                         <span class="label">Operative Identity: Verified</span>
-                        <h1 style="margin:10px 0; letter-spacing:2px; color:var(--o);">${emp.name}</h1>
-                        <p style="font-size:12px; color:#94a3b8;">Role: ${emp.role}</p>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <h1 style="margin:10px 0; letter-spacing:2px; color:var(--o);">${emp.name}</h1>
+                                <p style="font-size:12px; color:#94a3b8;">Role: ${emp.role}</p>
+                            </div>
+                            <button class="btn ${isClockedIn ? 'btn-danger' : 'btn-accent'}" style="width:120px; font-size:10px;" onclick="toggleClock('${emp.name}', ${isClockedIn})">
+                                ${isClockedIn ? 'CLOCK OUT' : 'CLOCK IN'}
+                            </button>
+                        </div>
                     </div>
                     ${assignedJobs || '<div class="module"><p style="opacity:0.5; font-size:11px;">No active processes assigned by CEO.</p></div>'}
                     <button class="btn btn-danger" onclick="logout()">TERMINATE SESSION</button>
                 `;
             }
+        }
+
+        function toggleClock(empName, currentlyIn) {
+            const time = new Date().toLocaleString();
+            if(!currentlyIn) {
+                gpStore.timeClock.unshift({emp: empName, type: 'CLOCK_IN', time: time, pairId: null});
+                logAction(`TIMELOG: ${empName} CLOCKED IN`);
+            } else {
+                gpStore.timeClock.unshift({emp: empName, type: 'CLOCK_OUT', time: time, pairId: 'linked'});
+                // Link to previous clock in
+                let lastIn = gpStore.timeClock.find(t => t.emp === empName && t.type === 'CLOCK_IN' && !t.pairId);
+                if(lastIn) lastIn.pairId = 'linked';
+                logAction(`TIMELOG: ${empName} CLOCKED OUT`);
+            }
+            sync();
+            navigate('crew');
         }
 
         function userLogin(roleType) {
@@ -477,7 +520,7 @@
                     <span class="label">Kernel Telemetry</span>
                     <div class="stat-grid">
                         <div class="stat-panel"><span class="label" style="font-size:8px;">Uptime</span><br>100%</div>
-                        <div class="stat-panel"><span class="label" style="font-size:8px;">Build</span><br>v45.2.2</div>
+                        <div class="stat-panel"><span class="label" style="font-size:8px;">Build</span><br>v45.3</div>
                     </div>
                 </div>`;
         }
@@ -547,6 +590,19 @@
                     </div>
                 </div>`).join('');
 
+            let phaseList = gpStore.phases.map((p, i) => `
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:11px; padding:5px; background:rgba(255,255,255,0.05); border-radius:5px;">
+                    <span>${i+1}. ${p}</span> <span style="color:var(--r); cursor:pointer;" onclick="deletePhase(${i})">X</span>
+                </div>
+            `).join('');
+
+            let timeLogs = gpStore.timeClock.map(t => `
+                <div style="border-bottom:1px solid #222; padding:5px 0; font-size:11px;">
+                    <strong style="color:${t.type==='CLOCK_IN'?'var(--g)':'var(--o)'}">${t.type}</strong> - ${t.emp} <br>
+                    <span style="opacity:0.5;">${t.time}</span>
+                </div>
+            `).join('');
+
             root.innerHTML = `
                 <h2 style="color:var(--g); text-align:center; letter-spacing:5px; margin-bottom:40px; text-shadow:var(--neon);">CEO COMMAND CENTER</h2>
                 
@@ -555,6 +611,11 @@
                     <h1 style="color:var(--g); margin:15px 0; font-size:56px; text-shadow:var(--neon);">$${totalRev.toFixed(2)}</h1>
                     <div class="progress-container"><div class="progress-fill" style="width:${progress}%"></div></div>
                     <p style="text-align:right; font-size:10px; opacity:0.5; letter-spacing:2px;">QUOTA: $10,000.00</p>
+                </div>
+
+                <div class="module" style="border-color:var(--b);">
+                    <span class="label" style="color:var(--b);">Time & Attendance Ledger</span>
+                    <div class="ledger" style="max-height:150px;">${timeLogs || '<p style="opacity:0.5; font-size:11px;">No logs recorded.</p>'}</div>
                 </div>
 
                 <div class="module" style="border-color:var(--o);">
@@ -568,6 +629,16 @@
                     <div class="ledger" style="margin-top:20px; background:transparent; border:none; padding:0;">
                         ${crewList || '<p style="opacity:0.5; font-size:11px;">No active personnel.</p>'}
                     </div>
+                </div>
+
+                <div class="module">
+                    <span class="label">Custom Status Matrices</span>
+                    <p style="font-size:10px; color:#94a3b8;">Define the sequential progress phases for your jobs.</p>
+                    <div style="display:flex; gap:10px;">
+                        <input type="text" id="new-phase-name" placeholder="E.g. On Lunch, Sanding, Polishing">
+                        <button class="btn btn-primary btn-small" onclick="addPhase()">ADD</button>
+                    </div>
+                    <div style="margin-top:15px; max-height:150px; overflow-y:auto;">${phaseList}</div>
                 </div>
 
                 <div class="module">
@@ -672,6 +743,15 @@
             gpStore.employees[i].pin = newPin; logAction(`PIN_UPDATED:${gpStore.employees[i].name}`); sync(); alert("Operative PIN updated.");
         }
 
+        function addPhase() {
+            const p = document.getElementById('new-phase-name').value;
+            if(p) { gpStore.phases.push(p); logAction(`PHASE_ADDED:${p}`); sync(); navigate('admin'); }
+        }
+        function deletePhase(i) {
+            if(gpStore.phases.length > 1) { gpStore.phases.splice(i, 1); sync(); navigate('admin'); }
+            else { alert("Cannot delete the final phase."); }
+        }
+
         function injectShop() {
             const n = document.getElementById('s-name').value, d = document.getElementById('s-desc').value, p = document.getElementById('s-price').value;
             const file = document.getElementById('s-img').files[0];
@@ -711,14 +791,18 @@
             const client = gpStore.clients[cIdx];
             let h = '';
             client.jobs.forEach((j, jIdx) => {
+                let phaseText = gpStore.phases[j.phaseIdx] || gpStore.phases[0];
                 h += `
                     <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:10px; margin-bottom:10px;">
                         <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:900;">
                             <span>${j.name} <span style="color:var(--o);">[${j.assignedTo || 'Unassigned'}]</span></span>
-                            <span id="p-val-${cIdx}-${jIdx}">${j.progress}%</span>
                         </div>
-                        <input type="range" min="0" max="100" value="${j.progress}" oninput="updateJobVal(${cIdx}, ${jIdx}, this.value)" onchange="saveJobVal(${cIdx}, ${jIdx}, this.value)">
-                        <button class="btn btn-danger btn-small" onclick="deleteJob(${cIdx}, ${jIdx})">DELETE JOB</button>
+                        <div style="display:flex; align-items:center; gap:10px; margin: 10px 0;">
+                            <button class="btn btn-small btn-danger" style="margin:0;" onclick="shiftPhase(${cIdx}, ${jIdx}, -1)">◀</button>
+                            <span style="color:var(--o); min-width:80px; text-align:center; font-size:12px; font-weight:900;">${phaseText}</span>
+                            <button class="btn btn-small btn-accent" style="margin:0;" onclick="shiftPhase(${cIdx}, ${jIdx}, 1)">▶</button>
+                        </div>
+                        <button class="btn btn-danger btn-small" style="width:100%; margin-top:5px;" onclick="deleteJob(${cIdx}, ${jIdx})">DELETE JOB</button>
                     </div>`;
             });
             list.innerHTML = h;
@@ -729,13 +813,26 @@
             const task = document.getElementById('new-job-name').value;
             const emp = document.getElementById('job-emp-sel').value;
             if(!sel || !task) return;
-            gpStore.clients[sel.value].jobs.push({name: task, progress: 0, assignedTo: emp}); logAction(`JOB_ADDED:${task}`); sync(); loadAdminJobs(); document.getElementById('new-job-name').value = '';
+            gpStore.clients[sel.value].jobs.push({name: task, progress: 0, phaseIdx: 0, assignedTo: emp}); logAction(`JOB_ADDED:${task}`); sync(); loadAdminJobs(); document.getElementById('new-job-name').value = '';
         }
-        function updateJobVal(cIdx, jIdx, val) { 
-            document.getElementById(`p-val-${cIdx}-${jIdx}`).innerText = val + "%"; 
-            if(gpStore.session.role === 'crew') { document.getElementById(`crew-val-${cIdx}-${jIdx}`).innerText = val + "%"; }
+
+        function shiftPhase(cIdx, jIdx, direction) {
+            let maxPhase = gpStore.phases.length - 1;
+            let current = gpStore.clients[cIdx].jobs[jIdx].phaseIdx;
+            
+            if (direction === 1 && current < maxPhase) current++;
+            if (direction === -1 && current > 0) current--;
+
+            gpStore.clients[cIdx].jobs[jIdx].phaseIdx = current;
+            gpStore.clients[cIdx].jobs[jIdx].progress = Math.round((current / maxPhase) * 100);
+            
+            logAction(`PHASE_UPDATE:${gpStore.clients[cIdx].jobs[jIdx].name} -> ${gpStore.phases[current]}`);
+            sync(); 
+            
+            if(currentActiveScreen === 'admin') loadAdminJobs();
+            if(currentActiveScreen === 'crew') navigate('crew');
         }
-        function saveJobVal(cIdx, jIdx, val) { gpStore.clients[cIdx].jobs[jIdx].progress = val; logAction(`PROG_UPDATE:${gpStore.clients[cIdx].jobs[jIdx].name} ${val}%`); sync(); }
+
         function deleteJob(cIdx, jIdx) { gpStore.clients[cIdx].jobs.splice(jIdx, 1); sync(); loadAdminJobs(); }
 
         // Chat logic
