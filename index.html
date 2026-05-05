@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Gard Precision | OS v45.2.1 | Full-Spectrum Production</title>
+    <title>Gard Precision | OS v45.2.2 | Full-Spectrum Production</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
-        /* V45.2.1 ULTRA-DENSITY STYLING 
+        /* V45.2.2 ULTRA-DENSITY STYLING 
            Industrial-Grade CSS Architecture: Neon Glassmorphism & High-Contrast Readability
         */
         :root { 
@@ -150,7 +150,7 @@
 <body onload="bootSystem()">
 
     <div class="top-bar">
-        <span>GARD PRECISION // INFRASTRUCTURE_OS v45.2.1</span>
+        <span>GARD PRECISION // INFRASTRUCTURE_OS v45.2.2</span>
         <span id="sys-clock">00:00:00 AM</span>
     </div>
 
@@ -165,13 +165,13 @@
         <button id="t-audit" class="nav-item" onclick="navigate('audit')">Audit</button>
         <button id="t-crew" class="nav-item" onclick="navigate('crew')">Crew</button>
         <button id="t-functionality" class="nav-item" onclick="navigate('functionality')">Systems</button>
-        <button id="t-admin" class="nav-item" onclick="navigate('gate')">CEO GARD</button>
+        <button id="t-admin" class="nav-item" onclick="navigate('admin')">CEO GARD</button>
     </nav>
 
     <main id="app-root" class="app-canvas"></main>
 
     <script>
-        /* V45.2.1 KERNEL LOGIC 
+        /* V45.2.2 KERNEL LOGIC 
            Includes IndexedDB Photo Vault, Employee Routing, CEO Permissions, and Authentication Fixes
         */
         const BASE_PAY_URL = "https://square.link/u/m66E40D7";
@@ -244,7 +244,7 @@
 
         function bootSystem() {
             updateTime(); setInterval(updateTime, 1000);
-            logAction("KERNEL_INITIALIZED_V45.2.1_SUCCESS");
+            logAction("KERNEL_INITIALIZED_V45.2.2_SUCCESS");
             navigate('portal'); // System defaults to Client Portal on load
         }
 
@@ -294,7 +294,7 @@
             root.innerHTML = `
                 <div class="module" style="border-color: var(--r);">
                     <span class="label" style="color:var(--r); border-color:var(--r);">Security Protocol Active</span>
-                    <p style="font-size:13px; color:#94a3b8; margin-bottom:25px; line-height:1.6;">Requested module requires CEO decryption (Argon6098).</p>
+                    <p style="font-size:13px; color:#94a3b8; margin-bottom:25px; line-height:1.6;">Requested module requires CEO decryption.</p>
                     <input type="password" id="key-input" placeholder="ENTER SYSTEM KEY" autofocus>
                     <button class="btn btn-accent" onclick="validateKey()">DECRYPT & AUTHORIZE</button>
                     ${gpStore.session.attempts >= 2 ? `<button class="btn btn-danger" style="margin-top:25px; font-size:11px;" onclick="sysUnlocked=true; navigate(targetSecureRoute)">KERNEL EMERGENCY BYPASS</button>` : ''}
@@ -308,7 +308,8 @@
         }
 
         function validateKey() {
-            if(document.getElementById('key-input').value === "Argon6098") {
+            // Trim added to prevent accidental spacebar lockouts
+            if(document.getElementById('key-input').value.trim() === "Argon6098") {
                 gpStore.session.attempts = 0; sysUnlocked = true; logAction("CEO_ACCESS_GRANTED"); navigate(targetSecureRoute);
             } else {
                 gpStore.session.attempts++; logAction(`AUTH_FAILURE_ID_${gpStore.session.attempts}`); 
@@ -476,7 +477,7 @@
                     <span class="label">Kernel Telemetry</span>
                     <div class="stat-grid">
                         <div class="stat-panel"><span class="label" style="font-size:8px;">Uptime</span><br>100%</div>
-                        <div class="stat-panel"><span class="label" style="font-size:8px;">Build</span><br>v45.2.1</div>
+                        <div class="stat-panel"><span class="label" style="font-size:8px;">Build</span><br>v45.2.2</div>
                     </div>
                 </div>`;
         }
