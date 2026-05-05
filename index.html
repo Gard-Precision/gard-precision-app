@@ -17,6 +17,8 @@
         .request-item { border-left: 4px solid var(--accent); padding: 15px; background: #111; margin-bottom: 15px; }
         .hidden { display: none; }
         h2 { color: var(--accent); text-transform: uppercase; letter-spacing: 2px; }
+        .price-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9em; }
+        .price-table td, .price-table th { border: 1px solid #444; padding: 8px; text-align: left; }
     </style>
 </head>
 <body>
@@ -32,8 +34,18 @@
     <div class="card">
         <p>Submit specifications for Argon-6 Calibration.</p>
         <input type="text" id="clientName" placeholder="Business Name">
-        <textarea id="requestDetails" rows="4" placeholder="Order Details"></textarea>
+        <textarea id="requestDetails" rows="4" placeholder="Order Details (e.g., 12 Pine Coasters)"></textarea>
         <button onclick="submitRequest()" style="width: 100%;">TRANSMIT REQUEST</button>
+    </div>
+
+    <div class="card">
+        <h3>Wholesale Price Tiers</h3>
+        <table class="price-table">
+            <tr><th>Tier</th><th>Qty</th><th>Unit</th></tr>
+            <tr><td>Standard</td><td>12</td><td>$3.91</td></tr>
+            <tr><td>Bulk</td><td>24</td><td>$3.54</td></tr>
+            <tr><td>Enterprise</td><td>48</td><td>$3.33</td></tr>
+        </table>
     </div>
 </div>
 
@@ -41,34 +53,34 @@
 <div id="admin" class="tab-content">
     <h2>[ SYSTEM OVERSEER ]</h2>
     
-    <!-- PASSWORD LOCK GATE -->
     <div id="lockGate" class="card">
         <h3>AUTHENTICATION REQUIRED</h3>
-        <input type="password" id="adminPass" placeholder="Enter System Password">
+        <p style="font-size: 0.8em; color: #666;">Enter System Password to view logs.</p>
+        <input type="password" id="adminPass" placeholder="Enter Password">
         <button onclick="verifyAccess()" style="width: 100%;">UNLOCK ADMIN PANEL</button>
     </div>
 
-    <!-- PROTECTED ADMIN CONTENT -->
     <div id="adminContent" class="hidden">
         <div class="card">
             <h3>Incoming Transmission Logs</h3>
             <div id="adminLogs">Scanning memory...</div>
-            <button onclick="clearLogs()" style="color: #ff4444; border-color: #ff4444; margin-top: 30px;">PURGE LOGS</button>
-            <button onclick="lockSystem()" style="margin-top: 10px;">RELOCK SYSTEM</button>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button onclick="clearLogs()" style="color: #ff4444; border-color: #ff4444; flex: 1;">PURGE LOGS</button>
+                <button onclick="lockSystem()" style="flex: 1;">RELOCK</button>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
-    const SYSTEM_PASS = "1234"; // CHANGE THIS TO YOUR PREFERRED PASSWORD
+    // FIXED PASSWORD CONFIGURATION
+    const SYSTEM_PASS = "Argon6098"; 
 
     function showTab(tabId) {
         document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
         document.getElementById(tabId).classList.add('active');
         document.getElementById('btn-' + tabId).classList.add('active');
-        
-        // Always relock when leaving the tab for security
         if(tabId !== 'admin') lockSystem();
     }
 
@@ -108,7 +120,7 @@
         if(data.length === 0) { logs.innerHTML = "No active requests."; return; }
         logs.innerHTML = data.map(req => `
             <div class="request-item">
-                <small>${req.time}</small><br>
+                <small style="color:var(--accent)">${req.time}</small><br>
                 <strong>FROM:</strong> ${req.name}<br>
                 <strong>SPEC:</strong> ${req.details}
             </div>
@@ -116,7 +128,10 @@
     }
 
     function clearLogs() {
-        if(confirm("Purge all data?")) { localStorage.removeItem('gp_requests'); loadRequests(); }
+        if(confirm("Confirm Protocol: Purge all transmission history?")) { 
+            localStorage.removeItem('gp_requests'); 
+            loadRequests(); 
+        }
     }
 </script>
 </body>
