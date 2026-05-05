@@ -187,6 +187,9 @@
             session: { user: null, attempts: 0, log: [] }
         };
 
+        // NEW: Keep track of which screen the user is currently on
+        let currentActiveScreen = 'main';
+
         // --- GESTURE RECOGNITION ENGINE ---
         let touchStartX = 0;
         let touchStartY = 0;
@@ -205,6 +208,9 @@
         }, false);
 
         function handleSwipe() {
+            // NEW: Only allow swipes if the user is currently on the 'main' page
+            if (currentActiveScreen !== 'main') return;
+
             const deltaX = touchEndX - touchStartX;
             const deltaY = touchEndY - touchStartY;
             const absX = Math.abs(deltaX);
@@ -246,6 +252,9 @@
         }
 
         function navigate(view) {
+            // NEW: Update the tracker so the gesture engine knows where you are
+            currentActiveScreen = (view === 'gate') ? 'admin' : view; 
+
             const root = document.getElementById('app-root');
             document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
             if(view === 'gate') { renderGate(root); return; }
