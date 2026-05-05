@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Gard Precision | OS v45.1 | Full-Spectrum Production</title>
+    <title>Gard Precision | OS v45.2 | Full-Spectrum Production</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
-        /* V45.1 ULTRA-DENSITY STYLING 
+        /* V45.2 ULTRA-DENSITY STYLING 
            Industrial-Grade CSS Architecture: Neon Glassmorphism & High-Contrast Readability
         */
         :root { 
@@ -145,22 +145,12 @@
 
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-thumb { background: var(--b); border-radius: 10px; }
-        
-        /* Swipe Indicator Styling */
-        .swipe-grid {
-            display: grid; grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr;
-            gap: 10px; text-align: center; align-items: center; justify-items: center;
-            opacity: 0.6; margin-top: 40px; pointer-events: none;
-        }
-        .swipe-node { font-size: 10px; font-weight: 900; letter-spacing: 2px; color: var(--g); text-transform: uppercase; }
-        .swipe-arrow { font-size: 24px; color: var(--b); animation: float 2s infinite ease-in-out; }
-        @keyframes float { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(0, -5px); } }
     </style>
 </head>
 <body onload="bootSystem()">
 
     <div class="top-bar">
-        <span>GARD PRECISION // INFRASTRUCTURE_OS v45.1</span>
+        <span>GARD PRECISION // INFRASTRUCTURE_OS v45.2</span>
         <span id="sys-clock">00:00:00 AM</span>
     </div>
 
@@ -170,7 +160,6 @@
     </div>
 
     <nav class="nav-dock">
-        <button id="t-main" class="nav-item" onclick="navigate('main')">Main</button>
         <button id="t-shop" class="nav-item" onclick="navigate('shop')">Shop</button>
         <button id="t-portal" class="nav-item" onclick="navigate('portal')">Client</button>
         <button id="t-audit" class="nav-item" onclick="navigate('audit')">Audit</button>
@@ -182,8 +171,9 @@
     <main id="app-root" class="app-canvas"></main>
 
     <script>
-        /* V45.1 KERNEL LOGIC 
-           Includes IndexedDB Photo Vault, Employee Routing, and CEO Permissions
+        /* V45.2 KERNEL LOGIC 
+           Includes IndexedDB Photo Vault, Employee Routing, and CEO Permissions.
+           Gestures completely removed.
         */
         const BASE_PAY_URL = "https://square.link/u/m66E40D7";
         const DUE_PAY_URL = "https://square.link/u/AqVdW7ZW";
@@ -216,7 +206,7 @@
                 if(item.imgId) {
                     const req = store.get(item.imgId);
                     req.onsuccess = e => {
-                        item.img = e.target.result; // Attach loaded Base64 image back to item
+                        item.img = e.target.result; 
                         if(currentActiveScreen === 'shop') renderShop(document.getElementById('app-root'));
                     };
                 }
@@ -250,37 +240,14 @@
         gpStore.employees.forEach(e => { if(!e.pin) e.pin = "0000"; });
 
         // Global States
-        let currentActiveScreen = 'main';
+        let currentActiveScreen = 'portal';
         let sysUnlocked = false; 
         let targetSecureRoute = '';
 
-        // --- GESTURE RECOGNITION ENGINE ---
-        let touchStartX = 0; let touchStartY = 0; let touchEndX = 0; let touchEndY = 0;
-        document.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; touchStartY = e.changedTouches[0].screenY; }, false);
-        document.addEventListener('touchend', e => { touchEndX = e.changedTouches[0].screenX; touchEndY = e.changedTouches[0].screenY; handleSwipe(); }, false);
-
-        function handleSwipe() {
-            if (currentActiveScreen !== 'main') return;
-            const deltaX = touchEndX - touchStartX;
-            const deltaY = touchEndY - touchStartY;
-            const absX = Math.abs(deltaX); const absY = Math.abs(deltaY);
-
-            if (absX < 50 && absY < 50) return; 
-
-            if (absX > absY) {
-                if (deltaX > 0) { navigate('admin'); } // Swipe Right -> CEO GARD
-                else { navigate('portal'); }           // Swipe Left -> Client Portal
-            } else {
-                if (deltaY > 0) { navigate('functionality'); } // Swipe Down -> Systems
-                else { navigate('audit'); }                    // Swipe Up -> Audit
-            }
-        }
-        // ----------------------------------
-
         function bootSystem() {
             updateTime(); setInterval(updateTime, 1000);
-            logAction("KERNEL_INITIALIZED_V45.1_SUCCESS");
-            navigate('main');
+            logAction("KERNEL_INITIALIZED_V45.2_SUCCESS");
+            navigate('portal'); // System now defaults to Client Portal on load
         }
 
         function updateTime() { document.getElementById('sys-clock').innerText = new Date().toLocaleTimeString(); }
@@ -298,10 +265,11 @@
         }
 
         function navigate(view) {
-            const secureViews = ['admin', 'functionality', 'crew'];
+            // ONLY CEO GARD and Systems require the Argon6098 password. 
+            // Crew portal is public so crew can log in.
+            const secureViews = ['admin', 'functionality'];
             
-            // Security Gate Check for Protected Tabs
-            if (secureViews.includes(view) && !sysUnlocked && gpStore.session.role !== 'crew') {
+            if (secureViews.includes(view) && !sysUnlocked) {
                 targetSecureRoute = view;
                 view = 'gate';
             }
@@ -315,7 +283,6 @@
             if(activeBtn) activeBtn.classList.add('active');
 
             if(view === 'gate') renderGate(root);
-            else if(view === 'main') renderMain(root);
             else if(view === 'shop') renderShop(root);
             else if(view === 'portal') renderPortal(root);
             else if(view === 'audit') renderAudit(root);
@@ -345,31 +312,6 @@
             } else {
                 gpStore.session.attempts++; logAction(`AUTH_FAILURE_ID_${gpStore.session.attempts}`); navigate('gate');
             }
-        }
-
-        function renderMain(root) {
-            root.innerHTML = `
-                <div class="module" style="text-align: center; padding: 60px 20px;">
-                    <div style="font-size:64px; margin-bottom: 20px; text-shadow: var(--neon);">⚙️</div>
-                    <h2 style="letter-spacing: 10px; text-transform: uppercase; font-weight: 900; margin: 0;">System Core</h2>
-                    <p style="color: #94a3b8; font-size: 13px; line-height: 1.6; margin-top: 15px;">
-                        Hardware verified. Gesture engine active. Awaiting operator input.
-                    </p>
-                    
-                    <div class="swipe-grid">
-                        <div></div>
-                        <div class="swipe-node"><div class="swipe-arrow">↑</div><br>Swipe Up<br>Audit</div>
-                        <div></div>
-                        
-                        <div class="swipe-node" style="display:flex; align-items:center; justify-content:flex-end;">Swipe Left<span class="swipe-arrow" style="margin-left:10px;">←</span><br>Client</div>
-                        <div style="border: 1px solid rgba(0, 242, 255, 0.2); border-radius: 50%; width: 50px; height: 50px; margin: auto; display:flex; align-items:center; justify-content:center; box-shadow: var(--neon);">●</div>
-                        <div class="swipe-node" style="display:flex; align-items:center; justify-content:flex-start;"><span class="swipe-arrow" style="margin-right:10px;">→</span>Swipe Right<br>CEO GARD</div>
-                        
-                        <div></div>
-                        <div class="swipe-node">Swipe Down<br><div class="swipe-arrow">↓</div><br>Systems</div>
-                        <div></div>
-                    </div>
-                </div>`;
         }
 
         function renderShop(root) {
@@ -521,7 +463,7 @@
             }
         }
 
-        function logout() { logAction("SESSION_TERMINATED"); gpStore.session.user = null; gpStore.session.role = null; navigate('main'); }
+        function logout() { logAction("SESSION_TERMINATED"); gpStore.session.user = null; gpStore.session.role = null; navigate('portal'); }
 
         function renderAudit(root) {
             root.innerHTML = `
@@ -535,7 +477,7 @@
                     <span class="label">Kernel Telemetry</span>
                     <div class="stat-grid">
                         <div class="stat-panel"><span class="label" style="font-size:8px;">Uptime</span><br>100%</div>
-                        <div class="stat-panel"><span class="label" style="font-size:8px;">Build</span><br>v45.1</div>
+                        <div class="stat-panel"><span class="label" style="font-size:8px;">Build</span><br>v45.2</div>
                     </div>
                 </div>`;
         }
@@ -712,7 +654,7 @@
                     <input type="number" id="cash-in" placeholder="CREDIT VALUE IN USD ($)">
                     <button class="btn btn-accent" onclick="injectCash()">AUTHORIZE DEPOSIT</button>
                 </div>
-                <button class="btn btn-danger" onclick="sysUnlocked=false; navigate('main')">LOCK SYSTEM AND TERMINATE COMMAND SESSION</button>`;
+                <button class="btn btn-danger" onclick="sysUnlocked=false; navigate('portal')">LOCK SYSTEM AND TERMINATE COMMAND SESSION</button>`;
                 
             const jobSel = document.getElementById('job-client-sel');
             if(jobSel) { jobSel.addEventListener('change', loadAdminJobs); loadAdminJobs(); }
