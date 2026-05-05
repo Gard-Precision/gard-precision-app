@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Gard Precision | OS v45.2 | Full-Spectrum Production</title>
+    <title>Gard Precision | OS v45.2.1 | Full-Spectrum Production</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
-        /* V45.2 ULTRA-DENSITY STYLING 
+        /* V45.2.1 ULTRA-DENSITY STYLING 
            Industrial-Grade CSS Architecture: Neon Glassmorphism & High-Contrast Readability
         */
         :root { 
@@ -150,7 +150,7 @@
 <body onload="bootSystem()">
 
     <div class="top-bar">
-        <span>GARD PRECISION // INFRASTRUCTURE_OS v45.2</span>
+        <span>GARD PRECISION // INFRASTRUCTURE_OS v45.2.1</span>
         <span id="sys-clock">00:00:00 AM</span>
     </div>
 
@@ -171,14 +171,13 @@
     <main id="app-root" class="app-canvas"></main>
 
     <script>
-        /* V45.2 KERNEL LOGIC 
-           Includes IndexedDB Photo Vault, Employee Routing, and CEO Permissions.
-           Gestures completely removed.
+        /* V45.2.1 KERNEL LOGIC 
+           Includes IndexedDB Photo Vault, Employee Routing, CEO Permissions, and Authentication Fixes
         */
         const BASE_PAY_URL = "https://square.link/u/m66E40D7";
         const DUE_PAY_URL = "https://square.link/u/AqVdW7ZW";
 
-        // --- INDEXED DB STORAGE VAULT (Bypasses 5MB limit for Photos) ---
+        // --- INDEXED DB STORAGE VAULT ---
         let db;
         const request = indexedDB.open("GardPhotoVault", 1);
         request.onupgradeneeded = event => {
@@ -212,7 +211,6 @@
                 }
             });
         }
-        // ----------------------------------------------------------------
 
         let gpStore = JSON.parse(localStorage.getItem('gp_v45_final')) || JSON.parse(localStorage.getItem('gp_v44_final')) || {
             meta: { revenueGoal: 10000, manualCredits: 0, subCost: 199.00 },
@@ -246,13 +244,12 @@
 
         function bootSystem() {
             updateTime(); setInterval(updateTime, 1000);
-            logAction("KERNEL_INITIALIZED_V45.2_SUCCESS");
-            navigate('portal'); // System now defaults to Client Portal on load
+            logAction("KERNEL_INITIALIZED_V45.2.1_SUCCESS");
+            navigate('portal'); // System defaults to Client Portal on load
         }
 
         function updateTime() { document.getElementById('sys-clock').innerText = new Date().toLocaleTimeString(); }
         function sync() { 
-            // We clone gpStore to sync, but strip heavy images out before saving to 5MB LocalStorage
             let safeStore = JSON.parse(JSON.stringify(gpStore));
             safeStore.shop.forEach(item => { if(item.imgId) delete item.img; }); 
             localStorage.setItem('gp_v45_final', JSON.stringify(safeStore)); 
@@ -265,8 +262,6 @@
         }
 
         function navigate(view) {
-            // ONLY CEO GARD and Systems require the Argon6098 password. 
-            // Crew portal is public so crew can log in.
             const secureViews = ['admin', 'functionality'];
             
             if (secureViews.includes(view) && !sysUnlocked) {
@@ -304,13 +299,20 @@
                     <button class="btn btn-accent" onclick="validateKey()">DECRYPT & AUTHORIZE</button>
                     ${gpStore.session.attempts >= 2 ? `<button class="btn btn-danger" style="margin-top:25px; font-size:11px;" onclick="sysUnlocked=true; navigate(targetSecureRoute)">KERNEL EMERGENCY BYPASS</button>` : ''}
                 </div>`;
+            
+            // Allow pressing Enter to submit
+            setTimeout(() => {
+                const input = document.getElementById('key-input');
+                if(input) input.onkeydown = (e) => { if(e.key === "Enter") validateKey(); };
+            }, 50);
         }
 
         function validateKey() {
             if(document.getElementById('key-input').value === "Argon6098") {
                 gpStore.session.attempts = 0; sysUnlocked = true; logAction("CEO_ACCESS_GRANTED"); navigate(targetSecureRoute);
             } else {
-                gpStore.session.attempts++; logAction(`AUTH_FAILURE_ID_${gpStore.session.attempts}`); navigate('gate');
+                gpStore.session.attempts++; logAction(`AUTH_FAILURE_ID_${gpStore.session.attempts}`); 
+                alert("ACCESS DENIED: INCORRECT KEY"); navigate('gate');
             }
         }
 
@@ -355,7 +357,6 @@
                 const isPaid = client ? client.paid : false;
                 const activePaymentLink = isPaid ? BASE_PAY_URL : DUE_PAY_URL;
 
-                // Job Progress HTML
                 let jobsHtml = client.jobs.length === 0 ? '<p style="font-size:11px; opacity:0.5;">No active production runs.</p>' : '';
                 client.jobs.forEach(job => {
                     jobsHtml += `
@@ -367,7 +368,6 @@
                         </div>`;
                 });
 
-                // Chat HTML
                 let chatHtml = '';
                 client.messages.forEach(m => {
                     chatHtml += `<div class="msg ${m.sender}"><span style="font-weight:900; color:${m.sender==='admin'?'var(--g)':'var(--o)'}">${m.sender === 'admin' ? 'CEO' : 'YOU'}</span><br>${m.text}<span class="msg-time">${m.time}</span></div>`;
@@ -408,7 +408,6 @@
             }
         }
 
-        // --- CREW PORTAL ---
         function renderCrew(root) {
             if(gpStore.session.role !== 'crew') {
                 root.innerHTML = `
@@ -477,7 +476,7 @@
                     <span class="label">Kernel Telemetry</span>
                     <div class="stat-grid">
                         <div class="stat-panel"><span class="label" style="font-size:8px;">Uptime</span><br>100%</div>
-                        <div class="stat-panel"><span class="label" style="font-size:8px;">Build</span><br>v45.2</div>
+                        <div class="stat-panel"><span class="label" style="font-size:8px;">Build</span><br>v45.2.1</div>
                     </div>
                 </div>`;
         }
